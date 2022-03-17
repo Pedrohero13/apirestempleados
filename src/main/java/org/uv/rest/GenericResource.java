@@ -5,6 +5,7 @@
 package org.uv.rest;
 
 import com.google.gson.Gson;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -14,6 +15,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PUT;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import org.uv.datos.Empleado;
 import org.uv.datos.FactoryDAO;
@@ -25,7 +27,7 @@ import org.uv.datos.FactoryDAO;
  *
  * @author pedro
  */
-@Path("rest")
+@Path("empleado")
 public class GenericResource {
 
     @Context
@@ -42,11 +44,14 @@ public class GenericResource {
      * @return an instance of java.lang.String
      */
     @GET
+    @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Empleado getEmpleado() {
+    public EmpleadoDTO obtenerEmpleado(@PathParam("id") Long id) {
         //TODO return proper representation object
-        Empleado emp = (Empleado)FactoryDAO.create(FactoryDAO.DAOType.EMPLEADO).buscarID(2);
-        return  emp;
+        Empleado emp = (Empleado)FactoryDAO.create(FactoryDAO.DAOType.EMPLEADO).buscarID(id);
+        
+        EmpleadoDTO dto = new EmpleadoDTO(String.valueOf(emp.getClave()), emp.getNombre(), emp.getDireccion(), emp.getTelefono(), emp.getClaveDepartamento().getNombre());
+        return dto;
     }
 
     /**
@@ -60,5 +65,19 @@ public class GenericResource {
     public boolean putEmpleado(Empleado emp) {
         return FactoryDAO.create(FactoryDAO.DAOType.EMPLEADO).guardar(emp);
         
+    }
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<EmpleadoDTO> obtenerEmpleados() {
+        //TODO return proper representation object
+        List<Empleado> list= FactoryDAO.create(FactoryDAO.DAOType.EMPLEADO).consultar();
+        List<EmpleadoDTO> listDTO= new ArrayList<>();
+        for(Empleado emp: list){
+            listDTO.add(new EmpleadoDTO(String.valueOf(emp.getClave()), 
+                    emp.getNombre(), emp.getDireccion(), 
+                    emp.getTelefono(), 
+                    emp.getClaveDepartamento().getNombre()));
+        }
+        return listDTO;
     }
 }

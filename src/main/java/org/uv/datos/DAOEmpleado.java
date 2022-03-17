@@ -114,8 +114,9 @@ public class DAOEmpleado implements IDAOGeneral<Empleado> {
                 try {
                     session = sessionFactory.openSession();
                     session.beginTransaction();
-                    Query query = session.createQuery("from Empleado ORDER BY clave");
+                    Query query = session.createQuery("SELECT DISTINCT e FROM Empleado e INNER JOIN FETCH e.claveDepartamento d");
                     list = query.list();
+                    list.get(0).getClaveDepartamento().getClave();
                     session.getTransaction().commit();
 
                 } catch (HibernateException ex) {
@@ -146,8 +147,9 @@ public class DAOEmpleado implements IDAOGeneral<Empleado> {
                 try {
                     session = sessionFactory.openSession();
                     session.beginTransaction();
-                    Query query = session.createQuery("from Empleado where clave = " + pojo.getClave());
+                    Query query = session.createQuery("SELECT DISTINCT e FROM Empleado e INNER JOIN FETCH e.claveDepartamento d where e.clave = " + pojo.getClave());
                     list = query.list();
+                    
                     session.getTransaction().commit();
                 } catch (HibernateException ex) {
                     session.getTransaction().rollback();
@@ -161,7 +163,7 @@ public class DAOEmpleado implements IDAOGeneral<Empleado> {
         };
 
         empleado = (Empleado) HibernateUtils.getInstance().select(select).get(0);
-        System.out.println(empleado.getClave());
+        
         return empleado;
     }
 }
